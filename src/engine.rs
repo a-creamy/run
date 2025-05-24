@@ -1,7 +1,7 @@
 mod lexer;
 mod parser;
-mod types;
-mod identifier;
+pub mod types;
+pub mod identifier;
 
 use super::engine::{
     lexer::Lexer,
