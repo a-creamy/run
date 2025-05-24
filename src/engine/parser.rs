@@ -60,10 +60,7 @@ impl<'a> Parser<'a> {
             expr.push(token.to_owned());
         }
 
-        Ok(Expr::Unary(
-            Operator::Absolute,
-            Box::new(Parser::new(&expr).parse()?),
-        ))
+        Ok(Expr::Unary(Operator::Absolute, Box::new(Parser::new(&expr).parse()?)))
     }
 
     fn ident(&mut self, id: &str) -> Result<Expr, String> {
@@ -71,7 +68,6 @@ impl<'a> Parser<'a> {
             "e" => self.num(consts::E),
             "pi" => self.num(consts::PI),
             "phi" => self.num((1.0 + 5.0_f64.sqrt()) / 2.0),
-
             "sqrt" => self.func(id),
             "ln" => self.func(id),
             "root" => self.func(id),
@@ -117,18 +113,18 @@ impl<'a> Parser<'a> {
 	    Some(Token::LeftParen) => {
 		match id {
 		    "root" => {
-			    let mut radicand = Vec::new();
-			    while let Some(next_token) = self.tokens.next() {
-			        if next_token == &Token::Comma {
-				        break;
-			        }
-
-			        radicand.push(next_token.to_owned());
+			let mut radicand = Vec::new();
+			while let Some(next_token) = self.tokens.next() {
+			    if next_token == &Token::Comma {
+				break;
 			    }
 
-			    Ok(Expr::Function(
-			        id.to_string(),
-			        vec![Box::new(Parser::new(&radicand).parse()?), Box::new(self.paren()?)]
+			    radicand.push(next_token.to_owned());
+			}
+
+			Ok(Expr::Function(
+			    id.to_string(),
+			    vec![Box::new(Parser::new(&radicand).parse()?), Box::new(self.paren()?)]
 		        ))
 		    }
 		    "log" => Ok(Expr::Function(id.to_string(), vec![Box::new(Expr::Num(10.0)), Box::new(self.paren()?)])),
@@ -136,16 +132,16 @@ impl<'a> Parser<'a> {
 		}
 	    }
 	    Some(Token::Underscore) => {
-		    let mut base = Vec::new();
-		    while let Some(next_token) = self.tokens.next() {
-		        if next_token == &Token::LeftParen {
-			        break;
-		        }
-
-		        base.push(next_token.to_owned());
+		let mut base = Vec::new();
+		while let Some(next_token) = self.tokens.next() {
+		    if next_token == &Token::LeftParen {
+			break;
 		    }
 
-            Ok(Expr::Function(id.to_string(), vec![Box::new(Parser::new(&base).parse()?), Box::new(self.paren()?)]))
+		    base.push(next_token.to_owned());
+		}
+
+                Ok(Expr::Function(id.to_string(), vec![Box::new(Parser::new(&base).parse()?), Box::new(self.paren()?)]))
 	    }
 	    None => Err("Unexpected end of expression: Expected a number, '(', or unary operator before end".into()),
 	    token => Err(format!("Unexpected '{}': Expected parenthesis after '{}'", token.unwrap(), id)),
